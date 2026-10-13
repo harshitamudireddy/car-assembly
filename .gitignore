@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Training runs & checkpoints
+runs/
+
+# Large temporary zip bundles
+*.zip
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Scratch and intermediate debug files
+scratch_*.jpg
+scratch_*.png
+test_filtered_yellow.png
+test_outside.png
+test_roi_clean.png
+test_golden_inspection.jpg
+cup_test_mask.png
+cup_clean_ring.png
