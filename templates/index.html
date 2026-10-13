@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoSight • Robotic Sealant Bead Vision Inspection HMI</title>
+    <title>Sealant Bead Inspection</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -23,19 +23,11 @@
                     },
                     colors: {
                         dark: {
-                            950: '#07090E',
-                            900: '#0C1017',
-                            850: '#111722',
-                            800: '#161F2E',
-                            750: '#1E2A3E',
-                            700: '#2A3A54',
-                            600: '#3D5275',
-                        },
-                        ind: {
-                            green: '#00F59B',
-                            amber: '#FFAA00',
-                            red: '#FF334B',
-                            cyan: '#00D8F6',
+                            950: '#0B0F17',
+                            900: '#111827',
+                            850: '#1F2937',
+                            800: '#374151',
+                            700: '#4B5563',
                         }
                     }
                 }
@@ -45,562 +37,395 @@
 
     <style>
         body {
-            background-color: #07090E;
-            color: #E2E8F0;
-            user-select: none;
+            background-color: #0B0F17;
+            color: #F3F4F6;
         }
-        .glow-green {
-            box-shadow: 0 0 25px rgba(0, 245, 155, 0.35);
-        }
-        .glow-red {
-            box-shadow: 0 0 25px rgba(255, 51, 75, 0.35);
-        }
-        .glow-amber {
-            box-shadow: 0 0 25px rgba(255, 170, 0, 0.35);
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+        .custom-scroll::-webkit-scrollbar {
             height: 6px;
         }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #0C1017;
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #111827;
         }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #2A3A54;
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #3D5275;
-        }
-        .scanline {
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 3px, 6px 100%;
-            pointer-events: none;
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body class="h-screen flex flex-col font-sans overflow-hidden">
 
-    <!-- Top Industrial Bar -->
-    <header class="bg-dark-900 border-b border-dark-750 px-5 py-2.5 flex items-center justify-between shrink-0">
-        <div class="flex items-center space-x-4">
-            <div class="flex items-center space-x-2.5">
-                <div class="w-8 h-8 rounded bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center font-bold text-white font-mono shadow-md">
-                    AS
-                </div>
-                <div>
-                    <div class="text-xs font-mono font-bold tracking-wider text-ind-cyan uppercase">AUTOSIGHT VISION HMI</div>
-                    <div class="text-sm font-extrabold text-white tracking-tight flex items-center gap-2">
-                        ROBOTIC SEALANT BEAD QC SYSTEM
-                        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-dark-750 text-slate-300 font-normal">v3.4-PROD</span>
-                    </div>
-                </div>
+    <!-- Clean Top Bar -->
+    <header class="bg-dark-900 border-b border-dark-850 px-6 py-3.5 flex items-center justify-between shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                🚗
             </div>
-
-            <div class="h-6 w-px bg-dark-750 mx-1"></div>
-
-            <!-- Factory Telemetry Badges -->
-            <div class="hidden md:flex items-center space-x-3 text-xs font-mono">
-                <div class="bg-dark-850 border border-dark-750 px-2.5 py-1 rounded flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-ind-green animate-pulse"></span>
-                    <span class="text-slate-400">CELL:</span>
-                    <span class="text-white font-semibold">ST-14 DISPENSE</span>
-                </div>
-                <div class="bg-dark-850 border border-dark-750 px-2.5 py-1 rounded flex items-center gap-1.5">
-                    <span class="text-slate-400">FIXTURE:</span>
-                    <span class="text-white font-semibold">CLAMP S1-C1</span>
-                </div>
-                <div class="bg-dark-850 border border-dark-750 px-2.5 py-1 rounded flex items-center gap-1.5">
-                    <span class="text-slate-400">CAMERA:</span>
-                    <span class="text-ind-cyan font-semibold">4K INDUSTRIAL</span>
-                </div>
-                <div class="bg-dark-850 border border-dark-750 px-2.5 py-1 rounded flex items-center gap-1.5">
-                    <span class="text-slate-400">CYCLE TIME:</span>
-                    <span id="kpi-cycle-time" class="text-white font-semibold">14.8 ms</span>
-                </div>
+            <div>
+                <h1 class="text-base font-bold text-white tracking-tight">Sealant Bead Quality Inspection</h1>
+                <p class="text-xs text-slate-400">Automated Presence & Placement Verification</p>
             </div>
         </div>
 
-        <!-- Master Verdict Lamp -->
-        <div class="flex items-center space-x-4">
-            <div id="verdict-banner" class="px-5 py-2 rounded-lg font-mono font-black text-sm tracking-widest flex items-center gap-2.5 border transition-all duration-300 bg-ind-green/15 text-ind-green border-ind-green glow-green">
-                <i data-lucide="check-circle-2" class="w-5 h-5"></i>
-                <span id="verdict-text">PASS • PART VERIFIED</span>
-            </div>
+        <!-- Big, Unmistakable Result Badge -->
+        <div id="status-badge" class="px-5 py-2 rounded-xl font-bold text-sm tracking-wide flex items-center gap-2 border shadow-lg transition-all duration-300 bg-emerald-500/15 text-emerald-400 border-emerald-500/40">
+            <i id="status-icon" data-lucide="check-circle-2" class="w-5 h-5"></i>
+            <span id="status-text">PASS • CORRECTLY PLACED</span>
         </div>
     </header>
 
     <!-- Main Workspace -->
     <div class="flex-1 flex overflow-hidden">
 
-        <!-- Left: Image Viewport & Controls -->
-        <main class="flex-1 flex flex-col bg-dark-950 p-4 overflow-hidden border-r border-dark-750">
-            <!-- Viewport Toolbar -->
+        <!-- Left: Image Viewer Area -->
+        <main class="flex-1 flex flex-col p-5 overflow-hidden">
+            
+            <!-- View Mode Switcher -->
             <div class="flex items-center justify-between pb-3 shrink-0">
-                <div class="flex items-center space-x-2">
-                    <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">VIEW MODE:</span>
-                    <div class="bg-dark-900 border border-dark-750 rounded-lg p-0.5 flex space-x-1 text-xs font-mono">
-                        <button onclick="setViewMode('split')" id="btn-view-split" class="px-3 py-1 rounded font-semibold bg-dark-750 text-white transition">SPLIT VIEW</button>
-                        <button onclick="setViewMode('annotated')" id="btn-view-annotated" class="px-3 py-1 rounded font-semibold text-slate-400 hover:text-white transition">OVERLAY</button>
-                        <button onclick="setViewMode('raw')" id="btn-view-raw" class="px-3 py-1 rounded font-semibold text-slate-400 hover:text-white transition">RAW FEED</button>
+                <div class="flex items-center space-x-1.5 bg-dark-900 p-1 rounded-xl border border-dark-850 text-xs font-medium">
+                    <button onclick="setViewMode('split')" id="btn-split" class="px-3.5 py-1.5 rounded-lg bg-dark-850 text-white font-semibold transition">Side-by-Side</button>
+                    <button onclick="setViewMode('overlay')" id="btn-overlay" class="px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Result Overlay</button>
+                    <button onclick="setViewMode('raw')" id="btn-raw" class="px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Original Photo</button>
+                </div>
+
+                <!-- Simple Legend -->
+                <div class="flex items-center gap-4 text-xs">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                        <span class="text-slate-300">Correct Paste</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                        <span class="text-slate-300">Missing / Gap</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                        <span class="text-slate-300">Misplaced Paste</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Canvas -->
+            <div class="flex-1 bg-dark-900 rounded-2xl border border-dark-850 p-2 overflow-hidden flex items-center justify-center min-h-0">
+                
+                <!-- Split View -->
+                <div id="view-split" class="w-full h-full grid grid-cols-2 gap-3">
+                    <div class="relative bg-black/60 rounded-xl overflow-hidden border border-dark-850 flex items-center justify-center">
+                        <span class="absolute top-3 left-3 bg-dark-900/80 backdrop-blur px-2.5 py-1 rounded-md text-xs text-slate-300 font-medium">Original Photo</span>
+                        <img id="img-raw" class="max-w-full max-h-full object-contain" src="" alt="Original Photo">
+                    </div>
+                    <div class="relative bg-black/60 rounded-xl overflow-hidden border border-dark-850 flex items-center justify-center">
+                        <span class="absolute top-3 left-3 bg-dark-900/80 backdrop-blur px-2.5 py-1 rounded-md text-xs text-emerald-400 font-medium">Inspection Result</span>
+                        <img id="img-annotated" class="max-w-full max-h-full object-contain" src="" alt="Inspection Result">
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-2 text-xs font-mono">
-                    <span class="text-slate-400">TARGET:</span>
-                    <span id="active-target-name" class="text-ind-cyan font-semibold truncate max-w-[240px]">01_PASS_Golden_Nominal.jpg</span>
-                    <label class="cursor-pointer bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 px-3 py-1 rounded flex items-center gap-1.5 transition">
+                <!-- Single View -->
+                <div id="view-single" class="w-full h-full hidden flex items-center justify-center">
+                    <img id="img-single" class="max-w-full max-h-full object-contain rounded-xl" src="" alt="Single View">
+                </div>
+            </div>
+
+            <!-- Test Specimen Switcher (Clean Buttons) -->
+            <div class="pt-4 shrink-0">
+                <div class="text-xs text-slate-400 font-medium mb-2 flex items-center justify-between">
+                    <span>SELECT A TEST SCENARIO:</span>
+                    <label class="cursor-pointer text-blue-400 hover:text-blue-300 flex items-center gap-1">
                         <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-                        <span>UPLOAD PHOTO</span>
+                        <span>Upload Your Own Photo</span>
                         <input type="file" id="file-uploader" class="hidden" accept="image/*" onchange="handleFileUpload(event)">
                     </label>
                 </div>
-            </div>
-
-            <!-- Viewport Canvas Container -->
-            <div class="flex-1 relative bg-dark-900 rounded-xl border border-dark-750 overflow-hidden flex items-center justify-center min-h-0">
-                <div class="absolute inset-0 scanline z-10 pointer-events-none opacity-40"></div>
-
-                <!-- Split View Container -->
-                <div id="view-split-container" class="w-full h-full grid grid-cols-2 gap-2 p-2">
-                    <div class="relative bg-black rounded-lg overflow-hidden border border-dark-800 flex items-center justify-center">
-                        <div class="absolute top-2 left-2 z-20 bg-dark-900/80 backdrop-blur border border-dark-750 px-2 py-0.5 rounded text-[10px] font-mono text-slate-300">RAW SENSOR FEED</div>
-                        <img id="img-raw" class="max-w-full max-h-full object-contain" src="" alt="Raw Stamping Image">
-                    </div>
-                    <div class="relative bg-black rounded-lg overflow-hidden border border-dark-800 flex items-center justify-center">
-                        <div class="absolute top-2 left-2 z-20 bg-dark-900/80 backdrop-blur border border-dark-750 px-2 py-0.5 rounded text-[10px] font-mono text-ind-cyan">INSPECTION OVERLAY (CAD BUFFER: +/-18px)</div>
-                        <img id="img-annotated" class="max-w-full max-h-full object-contain" src="" alt="Annotated QC Image">
-                    </div>
-                </div>
-
-                <!-- Single View Container -->
-                <div id="view-single-container" class="w-full h-full hidden p-2 flex items-center justify-center">
-                    <img id="img-single" class="max-w-full max-h-full object-contain rounded-lg" src="" alt="Single View Image">
-                </div>
-
-                <!-- Inspection HUD Legend (bottom-left) -->
-                <div class="absolute bottom-4 left-4 z-20 bg-dark-900/90 backdrop-blur border border-dark-750 px-3 py-1.5 rounded-lg flex items-center gap-4 text-[11px] font-mono">
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-ind-green"></span>
-                        <span class="text-slate-300">Within CAD Corridor</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-ind-red"></span>
-                        <span class="text-slate-300">Missing / Gap Break</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-ind-amber"></span>
-                        <span class="text-slate-300">Out-of-Bounds (Misplaced)</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-ind-cyan"></span>
-                        <span class="text-slate-300">Tolerance Boundary</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pre-configured Test Sample Selector Bar -->
-            <div class="pt-3 shrink-0">
-                <div class="text-[11px] font-mono text-slate-400 mb-1.5 uppercase flex items-center justify-between">
-                    <span>SELECT ASSEMBLY TEST SPECIMEN:</span>
-                    <span class="text-slate-500">1-CLICK INLINE SIMULATION</span>
-                </div>
-                <div id="samples-carousel" class="flex gap-2 overflow-x-auto custom-scrollbar pb-1">
+                <div id="sample-buttons" class="flex gap-2 overflow-x-auto custom-scroll pb-1">
                     <!-- Populated via JS -->
                 </div>
             </div>
         </main>
 
-        <!-- Right: QC Telemetry & Diagnostics Sidebar -->
-        <aside class="w-[420px] bg-dark-900 flex flex-col p-4 overflow-y-auto custom-scrollbar shrink-0 space-y-4">
-
-            <!-- Primary Metrics Panel -->
-            <div class="bg-dark-850 rounded-xl border border-dark-750 p-4">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="text-xs font-mono font-bold tracking-wider text-slate-300 uppercase flex items-center gap-2">
-                        <i data-lucide="gauge" class="w-4 h-4 text-ind-cyan"></i>
-                        QUALITY VERIFICATION METRICS
-                    </div>
-                    <span id="header-status-pill" class="text-[10px] font-mono px-2 py-0.5 rounded bg-ind-green/20 text-ind-green font-semibold">NOMINAL</span>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 mb-3">
-                    <!-- Metric 1: Coverage -->
-                    <div class="bg-dark-900 border border-dark-750 rounded-lg p-3">
-                        <div class="text-[10px] font-mono text-slate-400 uppercase">Bead Presence</div>
-                        <div class="text-2xl font-mono font-extrabold text-white mt-1" id="kpi-coverage">100.0%</div>
-                        <div class="w-full bg-dark-750 h-1.5 rounded-full mt-2 overflow-hidden">
-                            <div id="bar-coverage" class="bg-ind-green h-full rounded-full transition-all duration-500" style="width: 100%;"></div>
+        <!-- Right: Simple 3-Card Summary Panel -->
+        <aside class="w-[360px] bg-dark-900 border-l border-dark-850 flex flex-col p-5 overflow-y-auto shrink-0 space-y-4">
+            
+            <!-- Card 1: The Core 3 Checks -->
+            <div class="bg-dark-850/60 rounded-2xl border border-dark-850 p-4">
+                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3.5">Inspection Summary</h2>
+                
+                <div class="space-y-3">
+                    <!-- Check 1: Paste Present -->
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-dark-900/70 border border-dark-850">
+                        <div class="flex items-center gap-2.5">
+                            <div id="icon-presence-box" class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-medium text-white">Paste Present?</div>
+                                <div id="txt-presence-sub" class="text-[11px] text-slate-400">99.6% complete</div>
+                            </div>
                         </div>
-                        <div class="text-[10px] font-mono text-slate-400 mt-1 flex justify-between">
-                            <span>Limit: >85%</span>
-                            <span id="badge-coverage-status" class="text-ind-green font-semibold">PASS</span>
+                        <span id="badge-presence" class="text-xs font-bold text-emerald-400 px-2 py-0.5 rounded-md bg-emerald-500/10">YES</span>
+                    </div>
+
+                    <!-- Check 2: Placed Correctly -->
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-dark-900/70 border border-dark-850">
+                        <div class="flex items-center gap-2.5">
+                            <div id="icon-placement-box" class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-medium text-white">Placed Correctly?</div>
+                                <div id="txt-placement-sub" class="text-[11px] text-slate-400">Within path tolerance</div>
+                            </div>
                         </div>
+                        <span id="badge-placement" class="text-xs font-bold text-emerald-400 px-2 py-0.5 rounded-md bg-emerald-500/10">YES</span>
                     </div>
 
-                    <!-- Metric 2: Placement Accuracy -->
-                    <div class="bg-dark-900 border border-dark-750 rounded-lg p-3">
-                        <div class="text-[10px] font-mono text-slate-400 uppercase">Path Placement</div>
-                        <div class="text-2xl font-mono font-extrabold text-white mt-1" id="kpi-placement">95.7%</div>
-                        <div class="w-full bg-dark-750 h-1.5 rounded-full mt-2 overflow-hidden">
-                            <div id="bar-placement" class="bg-ind-green h-full rounded-full transition-all duration-500" style="width: 95.7%;"></div>
+                    <!-- Check 3: AI Model Result -->
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-dark-900/70 border border-dark-850">
+                        <div class="flex items-center gap-2.5">
+                            <div id="icon-ai-box" class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                                <i data-lucide="brain" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-medium text-white">AI Classification</div>
+                                <div id="txt-ai-sub" class="text-[11px] text-slate-400">YOLOv8 Confidence: 90%</div>
+                            </div>
                         </div>
-                        <div class="text-[10px] font-mono text-slate-400 mt-1 flex justify-between">
-                            <span>Corridor: +/-18px</span>
-                            <span id="badge-placement-status" class="text-ind-green font-semibold">PASS</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-dark-900 border border-dark-750 rounded-lg p-2.5 flex items-center justify-between text-xs font-mono">
-                    <span class="text-slate-400">Total Paste Area:</span>
-                    <span id="kpi-pixels" class="text-white font-bold">8,568 px</span>
-                    <span class="text-slate-500">|</span>
-                    <span class="text-slate-400">Outside Corridor:</span>
-                    <span id="kpi-outside" class="text-ind-cyan font-bold">304 px</span>
-                </div>
-            </div>
-
-            <!-- Zone Breakdown Card -->
-            <div class="bg-dark-850 rounded-xl border border-dark-750 p-4">
-                <div class="text-xs font-mono font-bold tracking-wider text-slate-300 uppercase mb-3 flex items-center gap-2">
-                    <i data-lucide="layers" class="w-4 h-4 text-ind-cyan"></i>
-                    SPATIAL ZONE DIAGNOSTICS (3 SECTIONS)
-                </div>
-
-                <div class="space-y-2.5" id="zones-container">
-                    <!-- Populated dynamically via JS -->
-                </div>
-            </div>
-
-            <!-- Deep Learning AI Model Telemetry -->
-            <div class="bg-dark-850 rounded-xl border border-dark-750 p-4">
-                <div class="flex items-center justify-between mb-2.5">
-                    <div class="text-xs font-mono font-bold tracking-wider text-slate-300 uppercase flex items-center gap-2">
-                        <i data-lucide="cpu" class="w-4 h-4 text-purple-400"></i>
-                        NEURAL CLASSIFIER (YOLOV8)
-                    </div>
-                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-semibold">TENSOR WEIGHTS ACTIVE</span>
-                </div>
-
-                <div id="ai-telemetry-content" class="bg-dark-900 border border-dark-750 rounded-lg p-3 text-xs font-mono">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-slate-400">Inference Label:</span>
-                        <span id="ai-label" class="font-extrabold text-white text-sm">PASS_CORRECT</span>
-                    </div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-slate-400">Certainty / Confidence:</span>
-                        <span id="ai-confidence" class="font-extrabold text-ind-green text-sm">90.1%</span>
-                    </div>
-
-                    <div class="text-[10px] uppercase text-slate-400 mb-1.5 font-bold">Softmax Class Distribution:</div>
-                    <div id="ai-dist-bars" class="space-y-1.5">
-                        <!-- Populated via JS -->
+                        <span id="badge-ai" class="text-xs font-bold text-blue-400 px-2 py-0.5 rounded-md bg-blue-500/10">PASS</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Tolerance Limits & Calibration Controls -->
-            <div class="bg-dark-850 rounded-xl border border-dark-750 p-4">
-                <div class="text-xs font-mono font-bold tracking-wider text-slate-300 uppercase mb-3 flex items-center gap-2">
-                    <i data-lucide="sliders" class="w-4 h-4 text-ind-cyan"></i>
-                    INSPECTION TOLERANCE LIMITS
+            <!-- Card 2: 3 Simple Zones -->
+            <div class="bg-dark-850/60 rounded-2xl border border-dark-850 p-4">
+                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Zone Breakdown</h2>
+                <div id="simple-zones" class="space-y-2">
+                    <!-- Populated via JS -->
                 </div>
+            </div>
 
-                <div class="space-y-3 text-xs font-mono">
+            <!-- Card 3: Expandable Sensitivity (Hidden by default to avoid clutter) -->
+            <details class="bg-dark-850/60 rounded-2xl border border-dark-850 p-3.5 group text-xs">
+                <summary class="font-medium text-slate-300 cursor-pointer list-none flex items-center justify-between">
+                    <span>⚙️ Tolerance Settings</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                </summary>
+                <div class="mt-3 space-y-3 pt-2 border-t border-dark-850">
                     <div>
-                        <div class="flex justify-between text-slate-300 mb-1">
-                            <span>Corridor Width (CAD Offset):</span>
-                            <span id="val-tol-px" class="text-ind-cyan font-bold">+/- 18 px</span>
+                        <div class="flex justify-between text-slate-400 mb-1">
+                            <span>Path Tolerance (+/- px):</span>
+                            <span id="val-tol" class="text-white font-semibold">18 px</span>
                         </div>
-                        <input type="range" id="slider-tol-px" min="8" max="30" value="18" class="w-full accent-ind-cyan cursor-pointer" oninput="updateToleranceValues(); debouncedInspect();">
+                        <input type="range" id="slider-tol" min="8" max="30" value="18" class="w-full accent-blue-500" oninput="document.getElementById('val-tol').innerText = this.value + ' px'; debouncedInspect();">
                     </div>
-
                     <div>
-                        <div class="flex justify-between text-slate-300 mb-1">
-                            <span>Min Presence Coverage:</span>
-                            <span id="val-min-cov" class="text-ind-cyan font-bold">85 %</span>
+                        <div class="flex justify-between text-slate-400 mb-1">
+                            <span>Min Coverage Needed:</span>
+                            <span id="val-cov" class="text-white font-semibold">85%</span>
                         </div>
-                        <input type="range" id="slider-min-cov" min="50" max="98" value="85" class="w-full accent-ind-cyan cursor-pointer" oninput="updateToleranceValues(); debouncedInspect();">
-                    </div>
-
-                    <div>
-                        <div class="flex justify-between text-slate-300 mb-1">
-                            <span>Max Misplaced Runout:</span>
-                            <span id="val-max-mis" class="text-ind-cyan font-bold">15 %</span>
-                        </div>
-                        <input type="range" id="slider-max-mis" min="5" max="30" value="15" class="w-full accent-ind-cyan cursor-pointer" oninput="updateToleranceValues(); debouncedInspect();">
+                        <input type="range" id="slider-cov" min="50" max="98" value="85" class="w-full accent-blue-500" oninput="document.getElementById('val-cov').innerText = this.value + '%'; debouncedInspect();">
                     </div>
                 </div>
-            </div>
+            </details>
 
-            <!-- Export Buttons -->
-            <div class="grid grid-cols-2 gap-2 pt-1 shrink-0">
-                <button onclick="downloadAnnotatedImage()" class="bg-dark-750 hover:bg-dark-700 text-white font-mono text-xs py-2.5 px-3 rounded-lg border border-dark-600 flex items-center justify-center gap-2 transition">
-                    <i data-lucide="download" class="w-4 h-4"></i>
-                    <span>SAVE QC IMAGE</span>
-                </button>
-                <button onclick="downloadJsonReport()" class="bg-dark-750 hover:bg-dark-700 text-white font-mono text-xs py-2.5 px-3 rounded-lg border border-dark-600 flex items-center justify-center gap-2 transition">
-                    <i data-lucide="file-json" class="w-4 h-4"></i>
-                    <span>MES JSON AUDIT</span>
-                </button>
-            </div>
+            <!-- Export Button -->
+            <button onclick="downloadImage()" class="w-full mt-auto py-2.5 px-4 bg-dark-850 hover:bg-dark-800 text-white font-medium text-xs rounded-xl border border-dark-700 flex items-center justify-center gap-2 transition">
+                <i data-lucide="download" class="w-4 h-4 text-slate-400"></i>
+                <span>Download Result Image</span>
+            </button>
         </aside>
     </div>
 
-    <!-- Bottom MES Event Log Ticker -->
-    <footer class="bg-dark-900 border-t border-dark-750 px-5 py-2 flex items-center justify-between text-xs font-mono shrink-0">
-        <div class="flex items-center space-x-3 text-slate-400 overflow-hidden">
-            <span class="text-ind-cyan font-bold shrink-0 flex items-center gap-1.5">
-                <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
-                PLANT AUDIT LOG:
-            </span>
-            <span id="audit-log-message" class="text-slate-300 truncate">System initialized. Awaiting cycle trigger...</span>
-        </div>
-        <div class="flex items-center space-x-4 text-slate-400 shrink-0">
-            <span>INSPECTION ENGINE: <span class="text-ind-green font-bold">DETERMINISTIC + YOLOV8</span></span>
-            <span>OS: <span class="text-slate-300 font-bold">EDGE SCADA</span></span>
-        </div>
-    </footer>
-
-    <!-- Frontend App Logic -->
+    <!-- Frontend Logic -->
     <script>
         let currentSample = "01_PASS_Golden_Nominal.jpg";
         let activeViewMode = "split";
-        let currentInspectionData = null;
+        let lastData = null;
         let debounceTimer = null;
+
+        // Friendly scenario labels
+        const cleanLabels = {
+            "01_PASS_Golden_Nominal.jpg": "✅ Normal Part (Pass)",
+            "02_FAIL_Missing_All_Paste.jpg": "❌ No Paste At All",
+            "03_FAIL_Missing_Cup_Bead.jpg": "❌ Missing Cup Bead",
+            "04_FAIL_Missing_Flange_Bead.jpg": "❌ Missing Flange Bead",
+            "05_FAIL_Cutout_Gap_Defect.jpg": "❌ Broken Bead (Gap)",
+            "06_FAIL_Misplaced_Flange_Bead.jpg": "⚠️ Misplaced Flange Bead",
+            "07_FAIL_Misplaced_Cutout_Loop.jpg": "⚠️ Misplaced Center Loop"
+        };
 
         document.addEventListener("DOMContentLoaded", () => {
             lucide.createIcons();
-            loadSamples();
-            runInspection();
+            loadSampleButtons();
+            runInspect();
         });
 
-        async function loadSamples() {
+        async function loadSampleButtons() {
             try {
                 const res = await fetch('/api/samples');
                 const samples = await res.json();
-                const container = document.getElementById('samples-carousel');
+                const container = document.getElementById('sample-buttons');
                 container.innerHTML = '';
 
                 samples.forEach(s => {
                     const btn = document.createElement('button');
-                    btn.className = `px-3 py-1.5 rounded-lg text-xs font-mono font-semibold shrink-0 border transition-all duration-200 ${
-                        s.filename === currentSample 
-                            ? 'bg-blue-600 text-white border-blue-400 shadow-md' 
-                            : 'bg-dark-850 hover:bg-dark-800 text-slate-300 border-dark-750'
+                    const label = cleanLabels[s.filename] || s.label;
+                    const isActive = s.filename === currentSample;
+
+                    btn.className = `px-3.5 py-2 rounded-xl text-xs font-medium shrink-0 border transition-all ${
+                        isActive
+                            ? 'bg-blue-600 text-white border-blue-500 shadow'
+                            : 'bg-dark-900 hover:bg-dark-850 text-slate-300 border-dark-850'
                     }`;
-                    btn.innerText = s.label;
-                    btn.onclick = () => selectSample(s.filename);
+                    btn.innerText = label;
+                    btn.onclick = () => {
+                        currentSample = s.filename;
+                        document.getElementById('file-uploader').value = '';
+                        loadSampleButtons();
+                        runInspect();
+                    };
                     container.appendChild(btn);
                 });
             } catch (err) {
-                console.error("Failed loading samples:", err);
+                console.error("Error loading samples:", err);
             }
-        }
-
-        function selectSample(filename) {
-            currentSample = filename;
-            document.getElementById('file-uploader').value = '';
-            document.getElementById('active-target-name').innerText = filename;
-            loadSamples(); // Update active button styling
-            runInspection();
-        }
-
-        function updateToleranceValues() {
-            document.getElementById('val-tol-px').innerText = `+/- ${document.getElementById('slider-tol-px').value} px`;
-            document.getElementById('val-min-cov').innerText = `${document.getElementById('slider-min-cov').value} %`;
-            document.getElementById('val-max-mis').innerText = `${document.getElementById('slider-max-mis').value} %`;
         }
 
         function debouncedInspect() {
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(runInspection, 150);
+            debounceTimer = setTimeout(runInspect, 150);
         }
 
         async function handleFileUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
             currentSample = null;
-            document.getElementById('active-target-name').innerText = `Uploaded: ${file.name}`;
-            loadSamples();
-            runInspection(file);
+            loadSampleButtons();
+            runInspect(file);
         }
 
-        async function runInspection(uploadFile = null) {
+        async function runInspect(file = null) {
             const formData = new FormData();
-            formData.append('tolerance_px', document.getElementById('slider-tol-px').value);
-            formData.append('min_coverage', document.getElementById('slider-min-cov').value / 100.0);
-            formData.append('max_misplaced', document.getElementById('slider-max-mis').value / 100.0);
+            formData.append('tolerance_px', document.getElementById('slider-tol').value);
+            formData.append('min_coverage', document.getElementById('slider-cov').value / 100.0);
+            formData.append('max_misplaced', 0.15);
 
-            if (uploadFile) {
-                formData.append('file', uploadFile);
+            if (file) {
+                formData.append('file', file);
             } else if (currentSample) {
                 formData.append('sample_name', currentSample);
             }
 
             try {
-                const res = await fetch('/api/inspect', {
-                    method: 'POST',
-                    body: formData
-                });
+                const res = await fetch('/api/inspect', { method: 'POST', body: formData });
                 const data = await res.json();
-                currentInspectionData = data;
-                renderInspection(data);
+                lastData = data;
+                renderDashboard(data);
             } catch (err) {
-                console.error("Inspection error:", err);
+                console.error("Inspect error:", err);
             }
         }
 
-        function renderInspection(data) {
-            // Latency & Images
-            document.getElementById('kpi-cycle-time').innerText = `${data.cycle_time_ms} ms`;
+        function renderDashboard(data) {
+            // Images
             document.getElementById('img-raw').src = data.raw_img;
             document.getElementById('img-annotated').src = data.annotated_img;
-            updateSingleViewSource();
+            if (activeViewMode === 'overlay') {
+                document.getElementById('img-single').src = data.annotated_img;
+            } else if (activeViewMode === 'raw') {
+                document.getElementById('img-single').src = data.raw_img;
+            }
 
             const r = data.results;
+            const badge = document.getElementById('status-badge');
+            const icon = document.getElementById('status-icon');
+            const text = document.getElementById('status-text');
 
-            // Verdict Banner & Style
-            const banner = document.getElementById('verdict-banner');
-            const vText = document.getElementById('verdict-text');
-            const statusPill = document.getElementById('header-status-pill');
-
-            banner.className = "px-5 py-2 rounded-lg font-mono font-black text-sm tracking-widest flex items-center gap-2.5 border transition-all duration-300 ";
-
+            // 1. Master Status
+            badge.className = "px-5 py-2 rounded-xl font-bold text-sm tracking-wide flex items-center gap-2 border shadow-lg transition-all duration-300 ";
             if (r.verdict.includes('PASS')) {
-                banner.classList.add('bg-ind-green/15', 'text-ind-green', 'border-ind-green', 'glow-green');
-                vText.innerText = "PASS • ALL BEADS CONFORM";
-                statusPill.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-ind-green/20 text-ind-green font-semibold";
-                statusPill.innerText = "NOMINAL (PASS)";
+                badge.classList.add('bg-emerald-500/15', 'text-emerald-400', 'border-emerald-500/40');
+                text.innerText = "PASS • CORRECT";
+                icon.setAttribute('data-lucide', 'check-circle-2');
             } else if (r.verdict.includes('MISPLACED')) {
-                banner.classList.add('bg-ind-amber/15', 'text-ind-amber', 'border-ind-amber', 'glow-amber');
-                vText.innerText = "DEFECT • BEAD OUT-OF-BOUNDS";
-                statusPill.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-ind-amber/20 text-ind-amber font-semibold";
-                statusPill.innerText = "MISPLACED RUNOUT";
+                badge.classList.add('bg-amber-500/15', 'text-amber-400', 'border-amber-500/40');
+                text.innerText = "DEFECT • MISPLACED PASTE";
+                icon.setAttribute('data-lucide', 'alert-triangle');
             } else {
-                banner.classList.add('bg-ind-red/15', 'text-ind-red', 'border-ind-red', 'glow-red');
-                vText.innerText = `DEFECT • ${r.verdict.replace('FAIL - ', '')}`;
-                statusPill.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-ind-red/20 text-ind-red font-semibold";
-                statusPill.innerText = "CRITICAL DEFECT";
+                badge.classList.add('bg-rose-500/15', 'text-rose-400', 'border-rose-500/40');
+                text.innerText = "DEFECT • MISSING PASTE";
+                icon.setAttribute('data-lucide', 'x-circle');
             }
 
-            // Metrics
-            document.getElementById('kpi-coverage').innerText = `${r.overall_coverage_pct}%`;
-            document.getElementById('bar-coverage').style.width = `${Math.min(r.overall_coverage_pct, 100)}%`;
-            document.getElementById('badge-coverage-status').innerText = r.overall_coverage_pct >= 85 ? "PASS" : "FAIL";
-            document.getElementById('badge-coverage-status').className = r.overall_coverage_pct >= 85 ? "text-ind-green font-semibold" : "text-ind-red font-semibold";
-            document.getElementById('bar-coverage').className = r.overall_coverage_pct >= 85 ? "bg-ind-green h-full rounded-full transition-all duration-500" : "bg-ind-red h-full rounded-full transition-all duration-500";
+            // 2. The 3 Simple Cards
+            // Presence
+            const isPresent = r.overall_coverage_pct >= 85;
+            document.getElementById('badge-presence').innerText = isPresent ? "YES" : "NO";
+            document.getElementById('badge-presence').className = `text-xs font-bold px-2 py-0.5 rounded-md ${isPresent ? 'text-emerald-400 bg-emerald-500/10' : 'text-rose-400 bg-rose-500/10'}`;
+            document.getElementById('txt-presence-sub').innerText = `${r.overall_coverage_pct}% applied`;
+            document.getElementById('icon-presence-box').className = `w-7 h-7 rounded-lg flex items-center justify-center ${isPresent ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`;
 
-            document.getElementById('kpi-placement').innerText = `${r.overall_placement_pct}%`;
-            document.getElementById('bar-placement').style.width = `${Math.min(r.overall_placement_pct, 100)}%`;
-            document.getElementById('badge-placement-status').innerText = r.overall_placement_pct >= 85 ? "PASS" : "FAIL";
-            document.getElementById('badge-placement-status').className = r.overall_placement_pct >= 85 ? "text-ind-green font-semibold" : "text-ind-red font-semibold";
+            // Placement
+            const isPlaced = r.overall_placement_pct >= 85 && !r.verdict.includes('MISPLACED');
+            document.getElementById('badge-placement').innerText = isPlaced ? "YES" : "NO";
+            document.getElementById('badge-placement').className = `text-xs font-bold px-2 py-0.5 rounded-md ${isPlaced ? 'text-emerald-400 bg-emerald-500/10' : 'text-amber-400 bg-amber-500/10'}`;
+            document.getElementById('txt-placement-sub').innerText = isPlaced ? "Within groove tolerance" : "Wandering outside groove";
+            document.getElementById('icon-placement-box').className = `w-7 h-7 rounded-lg flex items-center justify-center ${isPlaced ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`;
 
-            document.getElementById('kpi-pixels').innerText = `${r.total_detected_pixels.toLocaleString()} px`;
-            document.getElementById('kpi-outside').innerText = `${r.outside_tolerance_pixels.toLocaleString()} px`;
+            // AI Model
+            if (data.ai && !data.ai.error) {
+                const aiPass = data.ai.label === 'PASS_CORRECT';
+                document.getElementById('badge-ai').innerText = aiPass ? "PASS" : "FAIL";
+                document.getElementById('badge-ai').className = `text-xs font-bold px-2 py-0.5 rounded-md ${aiPass ? 'text-emerald-400 bg-emerald-500/10' : 'text-rose-400 bg-rose-500/10'}`;
+                document.getElementById('txt-ai-sub').innerText = `${data.ai.label.replace('FAIL_', '')} (${data.ai.confidence}%)`;
+                document.getElementById('icon-ai-box').className = `w-7 h-7 rounded-lg flex items-center justify-center ${aiPass ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`;
+            }
 
-            // Zones
-            const zonesList = document.getElementById('zones-container');
-            zonesList.innerHTML = '';
-            r.zones.forEach(z => {
-                const isPass = z.is_pass;
-                const card = document.createElement('div');
-                card.className = `bg-dark-900 border rounded-lg p-2.5 flex items-center justify-between text-xs font-mono transition ${
-                    isPass ? 'border-dark-750' : 'border-ind-red/40 bg-ind-red/5'
-                }`;
+            // 3. Simple Zones
+            const zonesBox = document.getElementById('simple-zones');
+            zonesBox.innerHTML = '';
+            
+            const cleanZoneNames = [
+                "Bracket Ring (Left)",
+                "Upper Flange Bead",
+                "Center Loop Bead"
+            ];
 
-                card.innerHTML = `
-                    <div>
-                        <div class="font-bold text-white flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full ${isPass ? 'bg-ind-green' : 'bg-ind-red'}"></span>
-                            ${z.zone}
-                        </div>
-                        <div class="text-[11px] text-slate-400 mt-1">
-                            Cov: <span class="text-white font-semibold">${z.coverage_pct}%</span> | 
-                            Placement: <span class="text-white font-semibold">${z.placement_accuracy_pct}%</span> |
-                            Gaps: <span class="${z.gap_count > 0 ? 'text-ind-red font-bold' : 'text-slate-400'}">${z.gap_count}</span>
-                        </div>
+            r.zones.forEach((z, idx) => {
+                const zPass = z.is_pass;
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between p-2 rounded-xl bg-dark-900/60 border border-dark-850 text-xs";
+                row.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full ${zPass ? 'bg-emerald-400' : 'bg-rose-500'}"></span>
+                        <span class="text-slate-300 font-medium">${cleanZoneNames[idx] || z.zone}</span>
                     </div>
-                    <div class="px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase ${
-                        isPass ? 'bg-ind-green/20 text-ind-green' : 'bg-ind-red/20 text-ind-red'
-                    }">
-                        ${z.status}
-                    </div>
+                    <span class="font-bold ${zPass ? 'text-emerald-400' : 'text-rose-400'}">${zPass ? 'OK' : z.status}</span>
                 `;
-                zonesList.appendChild(card);
+                zonesBox.appendChild(row);
             });
 
-            // AI Model Telemetry
-            if (data.ai && !data.ai.error) {
-                document.getElementById('ai-label').innerText = data.ai.label;
-                document.getElementById('ai-confidence').innerText = `${data.ai.confidence}%`;
-
-                const distContainer = document.getElementById('ai-dist-bars');
-                distContainer.innerHTML = '';
-
-                for (const [cls, prob] of Object.entries(data.ai.distribution)) {
-                    const isTop = cls === data.ai.label;
-                    const row = document.createElement('div');
-                    row.innerHTML = `
-                        <div class="flex justify-between text-[11px] mb-0.5">
-                            <span class="${isTop ? 'text-white font-bold' : 'text-slate-400'}">${cls}</span>
-                            <span class="${isTop ? 'text-ind-cyan font-bold' : 'text-slate-400'}">${prob}%</span>
-                        </div>
-                        <div class="w-full bg-dark-750 h-1 rounded-full overflow-hidden">
-                            <div class="${isTop ? 'bg-ind-cyan' : 'bg-slate-600'} h-full rounded-full" style="width: ${prob}%;"></div>
-                        </div>
-                    `;
-                    distContainer.appendChild(row);
-                }
-            }
-
-            // Audit Log Ticker
-            const now = new Date().toLocaleTimeString();
-            document.getElementById('audit-log-message').innerText = 
-                `[${now}] PART ID: ${data.source} • VERDICT: ${r.verdict} • COVERAGE: ${r.overall_coverage_pct}% • TIME: ${data.cycle_time_ms}ms`;
+            lucide.createIcons();
         }
 
         function setViewMode(mode) {
             activeViewMode = mode;
-            document.getElementById('btn-view-split').className = mode === 'split' ? 'px-3 py-1 rounded font-semibold bg-dark-750 text-white transition' : 'px-3 py-1 rounded font-semibold text-slate-400 hover:text-white transition';
-            document.getElementById('btn-view-annotated').className = mode === 'annotated' ? 'px-3 py-1 rounded font-semibold bg-dark-750 text-white transition' : 'px-3 py-1 rounded font-semibold text-slate-400 hover:text-white transition';
-            document.getElementById('btn-view-raw').className = mode === 'raw' ? 'px-3 py-1 rounded font-semibold bg-dark-750 text-white transition' : 'px-3 py-1 rounded font-semibold text-slate-400 hover:text-white transition';
+            document.getElementById('btn-split').className = mode === 'split' ? 'px-3.5 py-1.5 rounded-lg bg-dark-850 text-white font-semibold transition' : 'px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
+            document.getElementById('btn-overlay').className = mode === 'overlay' ? 'px-3.5 py-1.5 rounded-lg bg-dark-850 text-white font-semibold transition' : 'px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
+            document.getElementById('btn-raw').className = mode === 'raw' ? 'px-3.5 py-1.5 rounded-lg bg-dark-850 text-white font-semibold transition' : 'px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
 
             if (mode === 'split') {
-                document.getElementById('view-split-container').classList.remove('hidden');
-                document.getElementById('view-single-container').classList.add('hidden');
+                document.getElementById('view-split').classList.remove('hidden');
+                document.getElementById('view-single').classList.add('hidden');
             } else {
-                document.getElementById('view-split-container').classList.add('hidden');
-                document.getElementById('view-single-container').classList.remove('hidden');
-                updateSingleViewSource();
+                document.getElementById('view-split').classList.add('hidden');
+                document.getElementById('view-single').classList.remove('hidden');
+                document.getElementById('img-single').src = mode === 'overlay' ? lastData.annotated_img : lastData.raw_img;
             }
         }
 
-        function updateSingleViewSource() {
-            if (!currentInspectionData) return;
-            const singleImg = document.getElementById('img-single');
-            if (activeViewMode === 'annotated') {
-                singleImg.src = currentInspectionData.annotated_img;
-            } else if (activeViewMode === 'raw') {
-                singleImg.src = currentInspectionData.raw_img;
-            }
-        }
-
-        function downloadAnnotatedImage() {
-            if (!currentInspectionData) return;
+        function downloadImage() {
+            if (!lastData) return;
             const link = document.createElement('a');
-            link.href = currentInspectionData.annotated_img;
-            link.download = `QC_INSPECTION_${currentInspectionData.source.replace('.jpg', '')}.jpg`;
-            link.click();
-        }
-
-        function downloadJsonReport() {
-            if (!currentInspectionData) return;
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentInspectionData, null, 2));
-            const link = document.createElement('a');
-            link.href = dataStr;
-            link.download = `QC_REPORT_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+            link.href = lastData.annotated_img;
+            link.download = `Inspection_Result_${lastData.source.replace('.jpg', '')}.jpg`;
             link.click();
         }
     </script>
