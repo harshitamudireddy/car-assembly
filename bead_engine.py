@@ -10,7 +10,7 @@ import numpy as np
 
 
 class BeadInspector:
-    def __init__(self, base_dir=None, tolerance_px=18, min_coverage=0.85, max_misplaced_ratio=0.15):
+    def __init__(self, base_dir=None, tolerance_px=22, min_coverage=0.85, max_misplaced_ratio=0.18):
         if base_dir is None:
             base_dir = os.path.dirname(os.path.abspath(__file__))
         self.base_dir = base_dir
@@ -34,22 +34,22 @@ class BeadInspector:
 
         self.h, self.w = self.golden_all.shape[:2]
 
-        # Define Sheet Metal Inspection Region of Interest (strictly part surfaces)
+        # Define Sheet Metal Inspection Region of Interest (strictly part stamping surfaces)
         self.roi_metal = np.zeros((self.h, self.w), dtype=np.uint8)
         
         # 1. Cup Bracket ROI
         cv2.ellipse(self.roi_metal, (226, 354), (55, 45), -18, 0, 360, 255, -1)
 
-        # 2. Main stamping body (excluding clamps and upper bracket hardware)
+        # 2. Main stamping body (x >= 370, excluding zinc mounting plates & clamps)
         part_poly = np.array([
-            [285, 310], [630, 280], [635, 95], [920, 160], [920, 260],
-            [920, 360], [920, 680], [420, 680], [285, 680]
+            [370, 310], [630, 280], [635, 95], [920, 160], [920, 260],
+            [920, 360], [920, 680], [420, 680], [370, 680]
         ], np.int32)
         cv2.fillPoly(self.roi_metal, [part_poly], 255)
 
-        # Cutout the center hole (pipe/background reflection inside aperture)
+        # Safe center aperture hole (strictly inside the loop, never cutting the bead)
         inner_hole = np.array([
-            [580, 350], [830, 370], [840, 590], [580, 590]
+            [580, 320], [780, 340], [780, 570], [580, 570]
         ], np.int32)
         cv2.fillPoly(self.roi_metal, [inner_hole], 0)
 
@@ -61,27 +61,28 @@ class BeadInspector:
         self.corridor_cutout = cv2.dilate(self.golden_cutout, kernel)
 
     def extract_yellow_bead(self, img):
-        """Extract yellow paste segmentation mask within part ROI."""
+        """Extract continuous yellow paste segmentation mask within part ROI."""
         if img.shape[:2] != (self.h, self.w):
             img = cv2.resize(img, (self.w, self.h))
 
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        lower_yellow = np.array([16, 85, 85])
-        upper_yellow = np.array([33, 255, 255])
+        # Calibrated HSV capturing specular highlights without background zinc/pipe
+        lower_yellow = np.array([12, 50, 70])
+        upper_yellow = np.array([36, 255, 255])
         raw_yellow = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
         # Restrict strictly to sheet metal ROI
         bead_mask = cv2.bitwise_and(raw_yellow, raw_yellow, mask=self.roi_metal)
 
-        # Remove speckle noise
-        k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-        bead_mask = cv2.morphologyEx(bead_mask, cv2.MORPH_OPEN, k)
+        # Bridge specular glare breaks along the bead stroke
+        k_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+        bead_mask = cv2.morphologyEx(bead_mask, cv2.MORPH_CLOSE, k_close)
 
-        # Remove isolated components smaller than 25 pixels
+        # Remove tiny isolated noise specs < 40 pixels
         num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(bead_mask)
         clean_mask = np.zeros_like(bead_mask)
         for i in range(1, num_labels):
-            if stats[i, cv2.CC_STAT_AREA] >= 25:
+            if stats[i, cv2.CC_STAT_AREA] >= 40:
                 clean_mask[labels == i] = 255
 
         return clean_mask
@@ -96,10 +97,7 @@ class BeadInspector:
 
         # 1. Presence: yellow inside the golden path / corridor
         inside_corridor = cv2.bitwise_and(detected_mask, corridor_zone_mask)
-        inside_nominal = cv2.bitwise_and(detected_mask, golden_zone_mask)
-        
         inside_corridor_area = np.count_nonzero(inside_corridor)
-        inside_nominal_area = np.count_nonzero(inside_nominal)
 
         coverage_ratio = inside_corridor_area / max(golden_area, 1)
         coverage_pct = round(min(coverage_ratio, 1.0) * 100.0, 1)
@@ -117,19 +115,21 @@ class BeadInspector:
 
         total_zone_detected = np.count_nonzero(detected_in_zone)
         outside_corridor = cv2.bitwise_and(detected_in_zone, cv2.bitwise_not(corridor_zone_mask))
-        outside_area = np.count_nonzero(outside_corridor)
+        outside_corridor_clean = cv2.morphologyEx(outside_corridor, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
+        outside_area = np.count_nonzero(outside_corridor_clean)
 
         misplaced_ratio = outside_area / max(total_zone_detected, 1) if total_zone_detected > 0 else 0.0
         placement_accuracy_pct = round(max(0.0, (1.0 - misplaced_ratio) * 100.0), 1)
 
         # 3. Continuity / Gap Detection
         missing_mask = cv2.bitwise_and(golden_zone_mask, cv2.bitwise_not(detected_mask))
-        k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-        missing_clean = cv2.morphologyEx(missing_mask, cv2.MORPH_OPEN, k)
+        k_open = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
+        missing_clean = cv2.morphologyEx(missing_mask, cv2.MORPH_OPEN, k_open)
+        
         num_gaps, _, stats_gaps, _ = cv2.connectedComponentsWithStats(missing_clean)
         significant_gaps = 0
         for i in range(1, num_gaps):
-            if stats_gaps[i, cv2.CC_STAT_AREA] >= 35:
+            if stats_gaps[i, cv2.CC_STAT_AREA] >= 150:
                 significant_gaps += 1
 
         # Verdict logic
@@ -185,17 +185,18 @@ class BeadInspector:
         inside_corridor = cv2.bitwise_and(detected_mask, self.corridor_all)
         inside_corridor_area = np.count_nonzero(inside_corridor)
         outside_corridor = cv2.bitwise_and(detected_mask, cv2.bitwise_not(self.corridor_all))
-        outside_area = np.count_nonzero(outside_corridor)
+        outside_corridor_clean = cv2.morphologyEx(outside_corridor, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
+        outside_area = np.count_nonzero(outside_corridor_clean)
 
         overall_coverage_pct = round(min(inside_corridor_area / max(total_golden_area, 1), 1.0) * 100.0, 1)
-        overall_placement_pct = round((inside_corridor_area / max(total_detected_area, 1)) * 100.0, 1) if total_detected_area > 0 else 0.0
+        overall_placement_pct = round((inside_corridor_area / max(inside_corridor_area + outside_area, 1)) * 100.0, 1) if (inside_corridor_area + outside_area) > 0 else 0.0
 
         # Overall Status
         all_passed = all(z["is_pass"] for z in zone_results)
         if all_passed:
             overall_verdict = "PASS"
             verdict_color = (0, 200, 0)
-        elif total_detected_area < 800 or overall_coverage_pct < 10.0:
+        elif all(z["status"] == "MISSING" for z in zone_results) or total_detected_area < 1500 or overall_coverage_pct < 20.0:
             overall_verdict = "FAIL - NO PASTE PRESENT"
             verdict_color = (0, 0, 230)
         elif any(z["status"] == "MISPLACED" for z in zone_results) or (outside_area / max(total_detected_area, 1) > 0.20):
@@ -216,25 +217,26 @@ class BeadInspector:
         corridor_contours, _ = cv2.findContours(self.corridor_all, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cv2.drawContours(annotated, corridor_contours, -1, (255, 200, 0), 1)
 
-        # 2. Alpha-blended Bead Overlay (Green = In tolerance, Orange = Misplaced)
+        # 2. Continuous Bead Overlay (Solid Green inside corridor, Orange outside)
         overlay = annotated.copy()
         if inside_corridor_area > 0:
-            overlay[inside_corridor > 0] = [0, 255, 0]
+            overlay[inside_corridor > 0] = [0, 245, 120] # Solid vibrant green
         if outside_area > 0:
-            overlay[outside_corridor > 0] = [0, 100, 255]
+            overlay[outside_corridor_clean > 0] = [0, 140, 255] # Misplaced orange
 
-        annotated = cv2.addWeighted(annotated, 0.45, overlay, 0.55, 0)
+        annotated = cv2.addWeighted(annotated, 0.40, overlay, 0.60, 0)
 
-        # 4. Missing bead locations (Red outline along missing nominal path)
-        missing_mask = cv2.bitwise_and(self.golden_all, cv2.bitwise_not(detected_mask))
-        missing_k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-        missing_clean = cv2.morphologyEx(missing_mask, cv2.MORPH_OPEN, missing_k)
-        missing_contours, _ = cv2.findContours(missing_clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        for c in missing_contours:
-            if cv2.contourArea(c) > 30:
-                cv2.drawContours(annotated, [c], -1, (0, 0, 255), 2)
+        # 3. Missing bead locations (Red outline along missing nominal path ONLY when gap/missing occurs)
+        if not all_passed and overall_coverage_pct < 96.0:
+            missing_mask = cv2.bitwise_and(self.golden_all, cv2.bitwise_not(detected_mask))
+            missing_k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
+            missing_clean = cv2.morphologyEx(missing_mask, cv2.MORPH_OPEN, missing_k)
+            missing_contours, _ = cv2.findContours(missing_clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            for c in missing_contours:
+                if cv2.contourArea(c) >= 150:
+                    cv2.drawContours(annotated, [c], -1, (0, 0, 255), 2)
 
-        # 5. Draw HUD Banner on top
+        # 4. HUD Banner
         cv2.rectangle(annotated, (20, 20), (620, 150), (20, 20, 20), -1)
         cv2.rectangle(annotated, (20, 20), (620, 150), verdict_color, 2)
 
