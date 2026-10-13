@@ -23,3 +23,17 @@ test_roi_clean.png
 test_golden_inspection.jpg
 cup_test_mask.png
 cup_clean_ring.png
+clean_bare_metal_v2.jpg
+clean_loop_crop.png
+cleanest_pass_ever.jpg
+crop_mark.png
+diff_center_mask.png
+golden_bare_metal_clean.jpg
+golden_*_v2.png
+golden_mask_v2.png
+pass_overlay_clean.jpg
+perfect_loop_crop.png
+perfect_pass_*.jpg
+strict_center_mask.png
+test_continuous_green.jpg
+wide_center_mask.png
